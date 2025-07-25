@@ -3,7 +3,7 @@ git pull
 git submodule update --init --recursive
 cd ..
 
-cd nextcloud/30/apache/
+cd nextcloud/31/apache/
 docker build -t cyanwoods/nextcloud:tmp .
 
 cd -
