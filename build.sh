@@ -1,4 +1,5 @@
 cd nextcloud
+git checkout master
 git pull
 git submodule update --init --recursive
 cd ..
