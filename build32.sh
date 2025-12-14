@@ -10,10 +10,10 @@ docker build -t cyanwoods/nextcloud:tmp .
 cd -
 version=$(cat nextcloud/latest.txt)
 docker build -t cyanwoods/nextcloud:$version -t cyanwoods/nextcloud:latest .
-#docker push cyanwoods/nextcloud:$version
-#docker push cyanwoods/nextcloud:latest
+docker push cyanwoods/nextcloud:$version
+docker push cyanwoods/nextcloud:latest
 
-#docker rmi cyanwoods/nextcloud:tmp
-#docker rmi cyanwoods/nextcloud:$version
-#docker rmi cyanwoods/nextcloud:latest
-#docker builder prune -f
+docker rmi cyanwoods/nextcloud:tmp
+docker rmi cyanwoods/nextcloud:$version
+docker rmi cyanwoods/nextcloud:latest
+docker builder prune -f
