@@ -68,3 +68,4 @@ COPY supervisord.conf /supervisord.conf
 
 # 启动 supervisord
 CMD ["/usr/bin/supervisord", "-c", "/supervisord.conf"]
+
