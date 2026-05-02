@@ -2,8 +2,7 @@
 FROM cyanwoods/nextcloud:tmp
 
 # 避免交互式安装
-ENV DEBIAN_FRONTEND=noninteractive \
-    NEXTCLOUD_UPDATE=1
+ENV DEBIAN_FRONTEND=noninteractive
 
 # 一次性安装所有运行时依赖 + 清理缓存
 RUN set -eux; \
