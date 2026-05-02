@@ -11,7 +11,11 @@ cd nextcloud/31/apache/
 docker build -t cyanwoods/nextcloud:tmp .
 
 cd -
-version=$(cat nextcloud/latest.txt)
+version=$(jq -r '."31".version' nextcloud/versions.json)
+if [[ -z "$version" || "$version" == "null" ]]; then
+    echo "Error: version 31 not found in nextcloud/versions.json" >&2
+    exit 1
+fi
 docker build -t "cyanwoods/nextcloud:$version" -t cyanwoods/nextcloud:latest .
 docker push "cyanwoods/nextcloud:$version"
 docker push cyanwoods/nextcloud:latest

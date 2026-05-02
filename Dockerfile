@@ -1,11 +1,9 @@
 # 基础镜像：你自己的 Nextcloud 衍生镜像
 FROM cyanwoods/nextcloud:tmp
 
-# 避免交互式安装
-ENV DEBIAN_FRONTEND=noninteractive
-
 # 一次性安装所有运行时依赖 + 清理缓存
 RUN set -eux; \
+    export DEBIAN_FRONTEND=noninteractive; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
         vim \
@@ -24,6 +22,7 @@ RUN set -eux; \
 # 构建并启用 PHP 扩展（保留 bz2 与 smbclient；去掉 imap）
 # 说明：Trixie 无 libc-client-dev，imap 扩展在 Trixie 上不建议自编译
 RUN set -eux; \
+    export DEBIAN_FRONTEND=noninteractive; \
     savedAptMark="$(apt-mark showmanual)"; \
     apt-get update; \
     # 构建期依赖：按需精简，libsmbclient-dev 用于 pecl smbclient
