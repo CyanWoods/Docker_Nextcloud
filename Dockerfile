@@ -1,6 +1,9 @@
 # 基础镜像：你自己的 Nextcloud 衍生镜像
 FROM cyanwoods/nextcloud:tmp
 
+# supervisord 替换了 apache2-foreground 作为 CMD，导致上游 entrypoint 跳过升级逻辑，需显式开启
+ENV NEXTCLOUD_UPDATE=1
+
 # 一次性安装所有运行时依赖 + 清理缓存
 RUN set -eux; \
     export DEBIAN_FRONTEND=noninteractive; \
