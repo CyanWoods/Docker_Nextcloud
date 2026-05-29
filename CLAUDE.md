@@ -32,10 +32,22 @@ Each build script:
 5. Pushes both tags to Docker Hub
 6. Removes all local intermediate and final images, then prunes the build cache
 
+For multi-platform builds (amd64 + arm64), use `buildx.sh`:
+
+```bash
+./buildx.sh 33                                    # default: linux/amd64,linux/arm64
+./buildx.sh 33 linux/amd64,linux/arm64 --no-cache
+```
+
+`buildx.sh` pushes the upstream base as `cyanwoods/nextcloud-origin:<version>` / `:latest`
+and the final image as `cyanwoods/nextcloud:<version>` / `:latest`.
+
 ## Architecture
 
 **Two-stage build strategy:**
-- Stage 1: `nextcloud/<version>/apache/Dockerfile` → `cyanwoods/nextcloud:tmp` (upstream base)
+- Stage 1: `nextcloud/<version>/apache/Dockerfile` → upstream base image
+  - `build.sh`: local tag `cyanwoods/nextcloud:tmp`
+  - `buildx.sh`: pushed as `cyanwoods/nextcloud-origin:<version>` + `cyanwoods/nextcloud-origin:latest`
 - Stage 2: Root `Dockerfile` → `cyanwoods/nextcloud:<version>` (customized final image)
 
 **Root Dockerfile adds:**

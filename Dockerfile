@@ -1,5 +1,6 @@
 # 基础镜像：你自己的 Nextcloud 衍生镜像
-FROM cyanwoods/nextcloud:tmp
+ARG BASE_IMAGE=cyanwoods/nextcloud:tmp
+FROM ${BASE_IMAGE}
 
 # supervisord 替换了 apache2-foreground 作为 CMD，导致上游 entrypoint 跳过升级逻辑，需显式开启
 ENV NEXTCLOUD_UPDATE=1
