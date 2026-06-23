@@ -1,0 +1,62 @@
+name: Upstream Check
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+env:
+  MAJOR_VERSION: "33"
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Record current version
+        id: old
+        run: |
+          OLD=$(jq -r ".\"$MAJOR_VERSION\".version" nextcloud/versions.json)
+          echo "version=$OLD" >> $GITHUB_OUTPUT
+
+      - name: Pull submodule upstream
+        run: |
+          cd nextcloud
+          git checkout master
+          git pull
+          cd ..
+
+      - name: Read new version
+        id: new
+        run: |
+          NEW=$(jq -r ".\"$MAJOR_VERSION\".version" nextcloud/versions.json)
+          echo "version=$NEW" >> $GITHUB_OUTPUT
+
+      - name: Compare versions
+        id: compare
+        run: |
+          if [ "${{ steps.old.outputs.version }}" = "${{ steps.new.outputs.version }}" ]; then
+            echo "No version change: ${{ steps.old.outputs.version }}"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "Version changed: ${{ steps.old.outputs.version }} -> ${{ steps.new.outputs.version }}"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push submodule update
+        if: steps.compare.outputs.changed == 'true'
+        run: |
+          git config user.email "gitea-actions@local"
+          git config user.name "Gitea Actions"
+          git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@self.cyanwoods.com:51101/CyanWoods/Docker_Nextcloud"
+          git add nextcloud
+          git commit -m "Update# nextcloud submodule - 升级至 ${{ steps.new.outputs.version }}"
+          git push
