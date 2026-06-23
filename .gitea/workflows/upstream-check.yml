@@ -5,9 +5,6 @@ on:
     - cron: '0 2 * * *'
   workflow_dispatch:
 
-env:
-  MAJOR_VERSION: "33"
-
 permissions:
   contents: write
 
@@ -24,7 +21,7 @@ jobs:
       - name: Record current version
         id: old
         run: |
-          OLD=$(jq -r ".\"$MAJOR_VERSION\".version" nextcloud/versions.json)
+          OLD=$(cat nextcloud/latest.txt)
           echo "version=$OLD" >> $GITHUB_OUTPUT
 
       - name: Pull submodule upstream
@@ -37,7 +34,7 @@ jobs:
       - name: Read new version
         id: new
         run: |
-          NEW=$(jq -r ".\"$MAJOR_VERSION\".version" nextcloud/versions.json)
+          NEW=$(cat nextcloud/latest.txt)
           echo "version=$NEW" >> $GITHUB_OUTPUT
 
       - name: Compare versions
