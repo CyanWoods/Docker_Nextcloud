@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '0 2 * * *'
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run: detect and pull but do NOT commit/push'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -49,7 +54,7 @@ jobs:
           fi
 
       - name: Commit and push submodule update
-        if: steps.compare.outputs.changed == 'true'
+        if: steps.compare.outputs.changed == 'true' && inputs.dry_run != true
         run: |
           git config user.email "gitea-actions@local"
           git config user.name "Gitea Actions"
