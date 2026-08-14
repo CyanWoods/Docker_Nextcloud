@@ -1,14 +1,9 @@
-name: Upstream Check
+name: upstream-build
 
 on:
   schedule:
     - cron: '0 2 * * *'
   workflow_dispatch:
-    inputs:
-      dry_run:
-        description: 'Dry run: detect and pull but do NOT commit/push'
-        type: boolean
-        default: false
 
 permissions:
   contents: write
@@ -17,6 +12,9 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      changed: ${{ steps.compare.outputs.changed }}
+      version: ${{ steps.new.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -54,7 +52,7 @@ jobs:
           fi
 
       - name: Commit and push submodule update
-        if: steps.compare.outputs.changed == 'true' && inputs.dry_run != true
+        if: steps.compare.outputs.changed == 'true'
         run: |
           git config user.email "gitea-actions@local"
           git config user.name "Gitea Actions"
@@ -62,3 +60,32 @@ jobs:
           git add nextcloud
           git commit -m "Update# nextcloud submodule - 升级至 ${{ steps.new.outputs.version }}"
           git push
+
+  build:
+    needs: check
+    if: needs.check.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          submodules: recursive
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        env:
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+
+      - name: Build and push
+        run: |
+          MAJOR=$(cut -d. -f1 nextcloud/latest.txt)
+          chmod +x buildx.sh
+          ./buildx.sh "$MAJOR"
