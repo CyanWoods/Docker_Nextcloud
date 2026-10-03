@@ -61,6 +61,10 @@ RUN set -eux; \
     a2enmod ssl; \
     a2ensite default-ssl
 
+# PhotoKit OPTIONS 探测返回 501（客户端回退普通上传；mod_rewrite 已在基础镜像启用）
+COPY photokit-501.conf /etc/apache2/conf-available/photokit-501.conf
+RUN a2enconf photokit-501
+
 # supervisor 目录
 RUN set -eux; \
     mkdir -p /var/log/supervisord /var/run/supervisord

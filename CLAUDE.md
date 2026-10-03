@@ -55,6 +55,7 @@ and the final image as `cyanwoods/nextcloud:<version>` / `:latest`.
 - PHP extensions: `bz2` (via `docker-php-ext-install`) and `smbclient` (via PECL)
 - Build-time deps (`libbz2-dev`, `libsmbclient-dev`) are installed then auto-removed after extension compilation to keep the image lean
 - Apache SSL module and default-ssl site enabled
+- Apache conf `photokit-501.conf` (enabled via `a2enconf`): returns `501` for the iOS client's PhotoKit probe (`OPTIONS` requests carrying `X-NC-PhotoKit-Upload: 1`), so clients fall back to normal upload since the server has no resumable-upload support
 - `supervisord` replaces the default entrypoint CMD to run both Apache and the Nextcloud cron job in one container
 
 **supervisord.conf** manages two processes:
